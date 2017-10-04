@@ -1,0 +1,29 @@
+version: '2'
+services:
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass redis
+    container_name: redis
+    networks:
+      - all
+
+  microservice_registry:
+    image: node:alpine
+    volumes:
+      - ./:/usr/src/app
+    working_dir: /usr/src/app
+    command: sh -c 'npm install; npm run seed; npm start'
+    ports:
+      - "3500:3500"
+    depends_on:
+      - redis
+    networks:
+      - all
+    environment:
+      REDIS_HOST: "redis"
+
+networks:
+  all:
